@@ -15,12 +15,14 @@ class FieldElement:
         return self.num == other.num and self.prime == other.prime
 
     def __add__(self, other):
+        """Performs field-addition on elements of the same field order."""
         if self.prime != other.prime:
             raise TypeError("Cannot add two numbers in different Fields")
         num = (self.num + other.num) % self.prime
         return self.__class__(num, self.prime)
 
-    def __subtract__(self, other):
+    def __sub__(self, other):
+        """Performs field-subtraction on elements of the same field order."""
         if self.prime != other.prime:
             raise TypeError("Cannot subtract two numbers in different Fields")
         num = (self.num - other.num) % self.prime
