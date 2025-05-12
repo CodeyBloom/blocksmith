@@ -28,6 +28,25 @@ class FieldElement:
         num = (self.num - other.num) % self.prime
         return self.__class__(num, self.prime)
 
+    def __mul__(self, other):
+        """Performs field-multiplication on elements of the same field order."""
+        if self.prime != other.prime:
+            raise TypeError("Cannot multiply two numbers in different Fields")
+        num = (self.num * other.num) % self.prime
+        return self.__class__(num, self.prime)
+
+    def __pow__(self, exponent):
+        """Performs field-exponentiation on elements of the same field order."""
+        num = pow(self.num, exponent, self.prime)
+        return self.__class__(num, self.prime)
+
+    def __truediv__(self, other):
+        """Performs field-division on elements of the same field order."""
+        if self.prime != other.prime:
+            raise TypeError("Cannot divide two numbers in different Fields")
+        num = (self.num * pow(other.num, self.prime - 2, self.prime)) % self.prime
+        return self.__class__(num, self.prime)
+
 
 def main():
     print("Hello from blocksmith!")
