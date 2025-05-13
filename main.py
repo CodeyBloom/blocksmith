@@ -1,18 +1,15 @@
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
 class FieldElement:
-    def __init__(self, num, prime):
-        if num >= prime or num < 0:
-            error = "Num {} not in field range 0 to {}".format(num, prime - 1)
-            raise ValueError(error)
-        self.num = num
-        self.prime = prime
+    num: int
+    prime: int
 
-    def __repr__(self):
-        return "FieldElement_{}({})".format(self.prime, self.num)
-
-    def __eq__(self, other):
-        if other is None:
-            return False
-        return self.num == other.num and self.prime == other.prime
+    def __post_init__(self) -> None:
+        """Validates the FieldElement is in the proper field range"""
+        if self.num >= self.prime or self.num < 0:
+            raise ValueError(f"Num {self.num} not in field range 0 to {self.prime - 1}")
 
     def __add__(self, other):
         """Performs field-addition on elements of the same field order."""
