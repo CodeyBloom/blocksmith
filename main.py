@@ -42,7 +42,7 @@ class FieldElement:
 
     def __pow__(self: "FieldElement", exponent: int) -> FE:
         """Performs field-exponentiation on elements of a field order."""
-        n = exponent % (self.prime - 1)
+        n = exponent % (self.prime - 1)  # in case exponent is negative
         num = pow(self.num, n, self.prime)
         return cast(Type[FE], self.__class__(num, self.prime))
 
