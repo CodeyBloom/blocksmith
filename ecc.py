@@ -64,18 +64,19 @@ class FieldElement:
             raise TypeError("Cannot divide two numbers in different Fields")
         if other.num == 0:
             raise ZeroDivisionError("Cannot divide by zero")
+        # self/other = self * (other^-1) = self * (other^(prime-2)), thus we return:
         num = (self.num * pow(other.num, self.prime - 2, self.prime)) % self.prime
         return cast(Type[FE], self.__class__(num, self.prime))
 
 
 @dataclass(frozen=True)
 class Point:
-    """A Point is a point in an elliptic curve. This will be populated with FielElements in ECC."""
+    """A Point is a point in the elliptic curve y^2=x^3+ax+b. This will be populated with FielElements in ECC."""
 
     a: FieldElement
     b: FieldElement
-    x: FieldElement
-    y: FieldElement
+    x: FieldElement | None # If None, this is the point at infinity (see __add__)
+    y: FieldElement | None # If None, this is the point at infinity (see __add__)
 
     def __post_init__(self: "Point") -> None:
         """Validates the Point is on the curve."""
@@ -98,9 +99,23 @@ class Point:
         """Performs point-addition on two points."""
         if self.a != other.a or self.b != other.b:
             raise TypeError('Points {}, {} are not on the same curve'.format(self, other))
+
+        # Additive identity cases where one (or both) of the points is the point at infinity:
         if self.x is None:
-            return other # If self is the point at infinity, this returns other (additive identity)
+            return other
         if other.x is None:
-            return self # If other is the point at infinity, this returns self (additive identity)
+            return self
+
+        # Additive inverse case where the two points form a vertical line:
         if self.x == other.x and self.y != other.y:
-            return Point(self.a, self.b, None, None) # If self and other form a vertical line, this returns the point at infinity (additive inverse)
+            return cast(Type[PT], self.__class__(self.a, self.b, None, None))
+
+        # Finally, the case where the two points are not vertical or identical:
+        if self.x != other.x:
+            # see page 35 in Programming Bitcoin for a proof of this formula
+            lam = (other.y - self.y) / (other.x - self.x)
+            x3 = lam**2 - self.x - other.x
+            y3 = lam * (self.x - x3) - self.y
+            return cast(Type[PT], self.__class__(self.a, self.b, x3, y3))
+        else:
+            return cast(Type[PT], self.__class__(self.a, self.b, None, None))
