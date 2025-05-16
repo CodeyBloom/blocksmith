@@ -84,3 +84,9 @@ class Point:
         y = self.y
         if self.y**2 != self.x**3 + a * x + b:
             raise ValueError("({}, {}) is not on the curve".format(x, y))
+
+    def _ne__(self, other: "Point") -> bool:
+        """Checks if two Points are not equal."""
+        if other is None:
+            return False
+        return not (self.x == other.x and self.y == other.y and self.a == other.a and self.b == other.b)
