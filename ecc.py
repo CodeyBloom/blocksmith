@@ -6,6 +6,7 @@ from typing import Type, TypeVar, cast
 
 # Because I want type hints everywhere the dataclasses will be self referential. This helps with that.
 FE = TypeVar("FE", bound="FieldElement")
+PT = TypeVar("PT", bound="Point")
 
 
 @dataclass(frozen=True)
@@ -82,11 +83,24 @@ class Point:
         b = self.b
         x = self.x
         y = self.y
+        if self.x is None and self.y is None:
+            return # To do addition on Points we need a point at infinity, this allows such Points to be created.
         if self.y**2 != self.x**3 + a * x + b:
             raise ValueError("({}, {}) is not on the curve".format(x, y))
 
-    def _ne__(self, other: "Point") -> bool:
+    def __ne__(self, other: "Point") -> bool:
         """Checks if two Points are not equal."""
         if other is None:
             return False
         return not (self.x == other.x and self.y == other.y and self.a == other.a and self.b == other.b)
+
+    def __add__(self, other: "Point") -> PT:
+        """Performs point-addition on two points."""
+        if self.a != other.a or self.b != other.b:
+            raise TypeError('Points {}, {} are not on the same curve'.format(self, other))
+        if self.x is None:
+            return other # If self is the point at infinity, this returns other (additive identity)
+        if other.x is None:
+            return self # If other is the point at infinity, this returns self (additive identity)
+        if self.x == other.x and self.y != other.y:
+            return Point(self.a, self.b, None, None) # If self and other form a vertical line, this returns the point at infinity (additive inverse)
