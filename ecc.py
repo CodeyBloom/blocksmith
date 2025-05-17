@@ -75,8 +75,8 @@ class Point:
 
     a: FieldElement
     b: FieldElement
-    x: FieldElement | None # If None, this is the point at infinity (see __add__)
-    y: FieldElement | None # If None, this is the point at infinity (see __add__)
+    x: FieldElement | None
+    y: FieldElement | None # If x, y = None, this is the point at infinity (see __add__)
 
     def __post_init__(self: "Point") -> None:
         """Validates the Point is on the curve."""
@@ -85,7 +85,7 @@ class Point:
         x = self.x
         y = self.y
         if self.x is None and self.y is None:
-            return # To do addition on Points we need a point at infinity, this allows such Points to be created.
+            return # To do addition on Points we need a point at infinity, this allows such a point to be created.
         if self.y**2 != self.x**3 + a * x + b:
             raise ValueError("({}, {}) is not on the curve".format(x, y))
 
@@ -110,12 +110,21 @@ class Point:
         if self.x == other.x and self.y != other.y:
             return cast(Type[PT], self.__class__(self.a, self.b, None, None))
 
-        # Finally, the case where the two points are not vertical or identical:
+        # Case where the two points are identical, (handling the possibility of the tangent line being vertical first):
+        if self == other:
+            if self.y == 0 * self.x:
+                return cast(Type[PT], self.__class__(self.a, self.b, None, None))
+            else:
+                lam = (3 * self.x**2 + self.a) / (2 * self.y)
+                x3 = lam**2 - 2 * self.x
+                y3 = lam * (self.x - x3) - self.y
+                return cast(Type[PT], self.__class__(self.a, self.b, x3, y3))
+
+
+        # Finally, the case where the two points are not inverse or identical:
         if self.x != other.x:
-            # see page 35 in Programming Bitcoin for a proof of this formula
+            # see page 35 in Programming Bitcoin for a proof
             lam = (other.y - self.y) / (other.x - self.x)
             x3 = lam**2 - self.x - other.x
             y3 = lam * (self.x - x3) - self.y
             return cast(Type[PT], self.__class__(self.a, self.b, x3, y3))
-        else:
-            return cast(Type[PT], self.__class__(self.a, self.b, None, None))
