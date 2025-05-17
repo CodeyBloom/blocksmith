@@ -73,10 +73,10 @@ class FieldElement:
 class Point:
     """A Point is a point in the elliptic curve y^2=x^3+ax+b. This will be populated with FielElements in ECC."""
 
-    a: FieldElement
-    b: FieldElement
-    x: FieldElement | None
-    y: FieldElement | None # If x, y = None, this is the point at infinity (see __add__)
+    a: int | float
+    b: int | float
+    x: int | float | None
+    y: int | float | None # If x, y = None, this is the point at infinity (see __add__)
 
     def __post_init__(self: "Point") -> None:
         """Validates the Point is on the curve."""
