@@ -76,7 +76,9 @@ class Point:
     a: FieldElement
     b: FieldElement
     x: FieldElement | None
-    y: FieldElement | None # If x, y = None, this is the point at infinity (see __add__)
+    y: (
+        FieldElement | None
+    )  # If x, y = None, this is the point at infinity (see __add__)
 
     def __post_init__(self: "Point") -> None:
         """Validates the Point is on the curve."""
@@ -85,7 +87,7 @@ class Point:
         x = self.x
         y = self.y
         if self.x is None and self.y is None:
-            return # To do addition on Points we need a point at infinity, this allows such a point to be created.
+            return  # To do addition on Points we need a point at infinity, this allows such a point to be created.
         if self.y**2 != self.x**3 + a * x + b:
             raise ValueError("({}, {}) is not on the curve".format(x, y))
 
@@ -93,23 +95,27 @@ class Point:
         """Checks if two Points are not equal."""
         if other is None:
             return False
-        return not (self.x == other.x and self.y == other.y and self.a == other.a and self.b == other.b)
+        return not (
+            self.x == other.x
+            and self.y == other.y
+            and self.a == other.a
+            and self.b == other.b
+        )
 
     def __add__(self, other: "Point") -> PT:
         """Performs point-addition on two points."""
         if self.a != other.a or self.b != other.b:
-            raise TypeError('Points {}, {} are not on the same curve'.format(self, other))
-
+            raise TypeError(
+                "Points {}, {} are not on the same curve".format(self, other)
+            )
         # Additive identity cases where one (or both) of the points is the point at infinity:
         if self.x is None:
             return other
         if other.x is None:
             return self
-
         # Additive inverse case where the two points form a vertical line:
         if self.x == other.x and self.y != other.y:
             return cast(Type[PT], self.__class__(self.a, self.b, None, None))
-
         # Case where the two points are identical, (handling the possibility of the tangent line being vertical first):
         if self == other:
             if self.y.num == 0:
@@ -119,8 +125,6 @@ class Point:
                 x3 = lam**2 - 2 * self.x
                 y3 = lam * (self.x - x3) - self.y
                 return cast(Type[PT], self.__class__(self.a, self.b, x3, y3))
-
-
         # Finally, the case where the two points are not inverse or identical:
         if self.x != other.x:
             # see page 35 in Programming Bitcoin for a proof
