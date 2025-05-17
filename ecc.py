@@ -29,7 +29,7 @@ class FieldElement:
         """Checks if two FieldElements are not equal."""
         if other is None:
             return False
-        return not self.num == other.num and self.prime == other.prime
+        return not (self.num == other.num and self.prime == other.prime)
 
     def __add__(self, other: "FieldElement") -> FE:
         """Performs field-addition on elements of the same field order."""
@@ -73,10 +73,10 @@ class FieldElement:
 class Point:
     """A Point is a point in the elliptic curve y^2=x^3+ax+b. This will be populated with FielElements in ECC."""
 
-    a: int | float
-    b: int | float
-    x: int | float | None
-    y: int | float | None # If x, y = None, this is the point at infinity (see __add__)
+    a: FieldElement
+    b: FieldElement
+    x: FieldElement | None
+    y: FieldElement | None # If x, y = None, this is the point at infinity (see __add__)
 
     def __post_init__(self: "Point") -> None:
         """Validates the Point is on the curve."""
@@ -112,7 +112,7 @@ class Point:
 
         # Case where the two points are identical, (handling the possibility of the tangent line being vertical first):
         if self == other:
-            if self.y == 0 * self.x:
+            if self.y.num == 0:
                 return cast(Type[PT], self.__class__(self.a, self.b, None, None))
             else:
                 lam = (3 * self.x**2 + self.a) / (2 * self.y)
