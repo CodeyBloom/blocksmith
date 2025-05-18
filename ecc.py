@@ -1,5 +1,4 @@
-"""This module contains all the logic for doing elliptic curve cryptography (ECC) in python. This is basically my solutions
-to the problems and exercises in the first few chapters of Programming Bitcoin"""
+"""This module contains all the logic for doing elliptic curve cryptography (ECC) in python."""
 
 from dataclasses import dataclass
 from typing import Type, TypeVar, cast
@@ -76,9 +75,8 @@ class Point:
     a: FieldElement
     b: FieldElement
     x: FieldElement | None
-    y: (
-        FieldElement | None
-    )  # If x, y = None, this is the point at infinity (see __add__)
+    y: FieldElement | None
+    # If x, y = None, this is the point at infinity (see __add__)
 
     def __post_init__(self: "Point") -> None:
         """Validates the Point is on the curve."""
@@ -103,7 +101,7 @@ class Point:
         )
 
     def __add__(self, other: "Point") -> PT:
-        """Performs point-addition on two points."""
+        """Performs point-addition on two points. There are many cases to handle, see comments in code for full details."""
         if self.a != other.a or self.b != other.b:
             raise TypeError(
                 "Points {}, {} are not on the same curve".format(self, other)
@@ -121,6 +119,7 @@ class Point:
             if self.y.num == 0:
                 return cast(Type[PT], self.__class__(self.a, self.b, None, None))
             else:
+                # see page 36 in Programming Bitcoin for a proof
                 lam = (3 * self.x**2 + self.a) / (2 * self.y)
                 x3 = lam**2 - 2 * self.x
                 y3 = lam * (self.x - x3) - self.y
