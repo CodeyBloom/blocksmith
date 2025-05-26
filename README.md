@@ -7,6 +7,6 @@ I know there are several implenetations of the bitcoin protocol in python. Howev
 1. Prefer @dataclasses wherever possible.
 2. Type hints everywhere.
 3. Prefer immutable data structures.
-4. Practice code soundness (unintended states should not be representable).
+4. Practice code soundness (unintended states should not be representable). This is the most difficult for me to grok but I'm trying to work on it.
 
 In addition to code style, I will probably take the chance to practice writing more robust python than I'm usually required to (testing, error handling, etc.).

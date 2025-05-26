@@ -86,7 +86,10 @@ class Point:
         y = self.y
         if self.x is None and self.y is None:
             return  # To do addition on Points we need a point at infinity, this allows such a point to be created.
-        if self.y**2 != self.x**3 + a * x + b:
+        if (
+            cast(FieldElement, y) ** int(2)
+            != cast(FieldElement, x) ** int(3) + a * cast(FieldElement, x) + b
+        ):
             raise ValueError("({}, {}) is not on the curve".format(x, y))
 
     def __ne__(self, other: "Point") -> bool:
@@ -108,9 +111,9 @@ class Point:
             )
         # Additive identity cases where one (or both) of the points is the point at infinity:
         if self.x is None:
-            return other
+            return cast(Type[PT], other)
         if other.x is None:
-            return self
+            return cast(Type[PT], self)
         # Additive inverse case where the two points form a vertical line:
         if self.x == other.x and self.y != other.y:
             return cast(Type[PT], self.__class__(self.a, self.b, None, None))
