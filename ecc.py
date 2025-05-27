@@ -128,7 +128,7 @@ class Point:
                 y3 = lam * (self.x - x3) - self.y
                 return cast(Type[PT], self.__class__(self.a, self.b, x3, y3))
         # Finally, the case where the two points are not inverse or identical:
-        if self.x != other.x:
+        else:
             # see page 35 in Programming Bitcoin for a proof
             lam = (other.y - self.y) / (other.x - self.x)
             x3 = lam**2 - self.x - other.x
