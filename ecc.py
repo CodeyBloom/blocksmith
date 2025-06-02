@@ -1,9 +1,12 @@
-"""This module contains all the logic for doing elliptic curve cryptography (ECC) in python."""
+"""This module contains all the logic for doing elliptic curve cryptography (ECC) in python. The tests for this module
+are in the test_ecc.py file. They have been left deliberately simple to serves as examples, so you can see the intent
+of the logic here"""
 
 from dataclasses import dataclass
 from typing import Type, TypeVar, cast
 
-# Because I want type hints everywhere the dataclasses will be self referential. This helps with that.
+# Because I want type hints everywhere the dataclasses will need to return themselves before they are defined. To handle
+# this I will return generics in the type definitions, but bound the generics to the types.
 FE = TypeVar("FE", bound="FieldElement")
 PT = TypeVar("PT", bound="Point")
 
